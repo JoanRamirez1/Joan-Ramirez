@@ -1,0 +1,107 @@
+#include "stdafx.h"
+#include <string.h>
+#include "corrector.h"
+#include <stdlib.h>
+#include <ctype.h>
+#define LONGI 32
+char abecedario[LONGI + 6] = "abcdefghijklmnñopqrstuvwxyzáéíóú";
+void Diccionario(char* szNombre,char szPalabras[][TAMTOKEN],int iEstadisticas[],int& iNumElementos)
+{
+	FILE* fp;
+	iNumElementos = 0;
+	int i;
+
+	char lectura, array[TAMTOKEN];
+
+	for (i = 0; i < NUMPALABRAS; i++)
+		iEstadisticas[i] = 0;
+
+	fopen_s(&fp, szNombre, "r");
+
+	int contador = 0;
+
+	char puntuacion[] = " \t\n\r.,;() ";
+
+
+	if (fp == NULL)
+		return;
+
+
+	while ((lectura = fgetc(fp)) != EOF)
+	{
+		
+		bool bandera = true;
+
+		
+		lectura = tolower(lectura);
+
+
+		for (i = 0; i < strlen(puntuacion); i++)
+
+		
+			if (puntuacion[i] == lectura)
+				bandera = false;
+
+
+		if (contador < TAMTOKEN && bandera) {
+			array[contador++] = lectura;
+			continue;
+		}
+		else if (contador == 0)
+			continue;
+
+
+		else if (contador == 1 && bandera)
+		{
+			contador = 0;
+			continue;
+		}
+
+		array[contador] = '\0';
+		for (i = 0; i < iNumElementos && !bandera; i++)
+		{
+
+			if (strcmp(szPalabras[i], array) == 0)
+			{
+				iEstadisticas[i]++;
+				bandera = true;
+			}
+		}
+
+		if (!bandera) {
+		
+			strcpy_s(szPalabras[iNumElementos], array);
+			iEstadisticas[iNumElementos++]++;
+
+		}
+		contador = 0;
+	}
+	fclose(fp);
+
+
+
+	for (int j = 0; j < iNumElementos - 1; j++)
+	{
+
+		for (i = j + 1; i < iNumElementos; i++)
+		{
+
+			if (strcmp(szPalabras[j], szPalabras[i]) > 0)
+			{
+				strcpy_s(array, szPalabras[j]);
+				strcpy_s(szPalabras[j], szPalabras[i]);
+				strcpy_s(szPalabras[i], array);
+				contador = iEstadisticas[j];
+				iEstadisticas[j] = iEstadisticas[i];
+				iEstadisticas[i] = contador;
+			}
+		}
+	}
+	
+}
+int main()
+{
+
+
+}
+
